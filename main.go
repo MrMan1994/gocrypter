@@ -141,6 +141,7 @@ func bruteForce(filename string, outputFilename string, characters string, passl
 				}
 			}
 		}
+		log.Fatalf("\033[2K\r\033[0;31mNo matching password found using the provided characters: '%s' with maximum password length: %d\033[0m\n", characters, passlen)
 	}
 
 }
