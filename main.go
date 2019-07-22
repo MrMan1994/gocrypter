@@ -113,12 +113,13 @@ func bruteForce(filename string, outputFilename string, characters string, passl
 		log.Fatalf("Failed to read from file!\n")
 	} else {
 		for passGuess := range GenerateCombinations(characters, passlen) {
+			fmt.Printf("\033[2K\rTrying: %s", passGuess)
 			key := []byte(createHash(passGuess))
 			if block, err := aes.NewCipher(key); err != nil {
-				log.Fatalf("Failed to create a new AES Cipher!\n")
+				log.Fatalf("\nFailed to create a new AES Cipher!\n")
 			} else {
 				if gcm, err := cipher.NewGCM(block); err != nil {
-					log.Fatalf("Failed to create a new GCM Block!\n")
+					log.Fatalf("\nFailed to create a new GCM Block!\n")
 				} else {
 					nonceSize := gcm.NonceSize()
 					nonce, ciphertext := data[:nonceSize], data[nonceSize:]
@@ -126,13 +127,13 @@ func bruteForce(filename string, outputFilename string, characters string, passl
 						continue
 					} else {
 						if f, err := os.Create(outputFilename); err != nil {
-							log.Fatalf("Successfully decrypted the file %s, but failed to create the output to %s!\nThe decrypted content is:\n%s",filename, outputFilename, string(plaintext))
+							log.Fatalf("\nSuccessfully decrypted the file %s, but failed to create the output to %s!\nThe decrypted content is:\n%s",filename, outputFilename, string(plaintext))
 						} else {
 							defer f.Close()
 							if _, err := f.Write(plaintext); err != nil {
-								log.Fatalf("Successfully decrypted the file %s, but failed to write the output to %s!\nThe decrypted content is:\n%s",filename, outputFilename, string(plaintext))
+								log.Fatalf("\nSuccessfully decrypted the file %s, but failed to write the output to %s!\nThe decrypted content is:\n%s",filename, outputFilename, string(plaintext))
 							} else {
-								fmt.Printf("Successfully decrypted the file %s and write it's output to %s\nThe decrypted content is:\n%s\n", filename, outputFilename, string(plaintext))
+								fmt.Printf("\nSuccessfully decrypted the file %s and write it's output to %s\nThe decrypted content is:\n%s\n", filename, outputFilename, string(plaintext))
 								return
 							}
 						}
