@@ -11,8 +11,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-
-	//"log"
 	"os"
 )
 
@@ -84,30 +82,20 @@ func decryptFile(filename string, outputFilename string, passphrase string) {
 		} else {
 			log.Fatalf("Failed to decrypt file!\n")
 		}
-
 	}
 }
 
 func GenerateCombinations(alphabet string, length int) <-chan string {
 	c := make(chan string)
-
-	// Starting a separate goroutine that will create all the combinations,
-	// feeding them to the channel c
 	go func(c chan string) {
-		defer close(c) // Once the iteration function is finished, we close the channel
+		defer close(c)
 
-		AddLetter(c, "", alphabet, length) // We start by feeding it an empty string
+		AddLetter(c, "", alphabet, length)
 	}(c)
-
-	return c // Return the channel to the calling function
+	return c
 }
 
-// AddLetter adds a letter to the combination to create a new combination.
-// This new combination is passed on to the channel before we call AddLetter once again
-// to add yet another letter to the new combination in case length allows it
 func AddLetter(c chan string, combo string, alphabet string, length int) {
-	// Check if we reached the length limit
-	// If so, we just return without adding anything
 	if length <= 0 {
 		return
 	}
@@ -119,7 +107,6 @@ func AddLetter(c chan string, combo string, alphabet string, length int) {
 		AddLetter(c, newCombo, alphabet, length-1)
 	}
 }
-
 
 func bruteForce(filename string, outputFilename string, characters string, passlen int) {
 	if data, err := ioutil.ReadFile(filename); err != nil {
@@ -149,14 +136,6 @@ func bruteForce(filename string, outputFilename string, characters string, passl
 								return
 							}
 						}
-						/*
-						if err := ioutil.WriteFile(outputFilename, plaintext, 666); err != nil {
-							log.Fatalf("Successfully decrypted the file %s, but failed to write the output to %s!\nThe decrypted content is:\n%s",filename, outputFilename, string(plaintext))
-							return
-						} else {
-							fmt.Printf("Successfully decrypted the file %s and write it's output to %s\nThe decrypted content is:\n%s\n", filename, outputFilename, string(plaintext))
-							return
-						}*/
 					}
 				}
 			}
@@ -178,7 +157,6 @@ func checkMutuallyExclusiveArgsString(args []string) bool{
 	}
 	return true
 }
-
 
 func requireFlags(flags []string) {
 	required := flags
