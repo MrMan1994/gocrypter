@@ -10,9 +10,9 @@ import (
 	"os"
 )
 
-var(
-	decryptOutputFile string
-	decryptPassword string
+var (
+	decryptOutputFile        string
+	decryptPassword          string
 	decryptOutputDestination *os.File
 )
 
@@ -23,16 +23,16 @@ func init() {
 }
 
 var decryptCmd = &cobra.Command{
-	Use:                        "decrypt",
-	Aliases:                    []string{"d"},
-	SuggestFor:                 nil,
-	Short:                      "decrypt a file",
-	Long:                       "",
-	Example:                    "",
-	ValidArgs:                  nil,
-	Args:                       nil,
-	ArgAliases:                 nil,
-	PersistentPreRun:           nil,
+	Use:              "decrypt",
+	Aliases:          []string{"d"},
+	SuggestFor:       nil,
+	Short:            "decrypt a file",
+	Long:             "",
+	Example:          "",
+	ValidArgs:        nil,
+	Args:             nil,
+	ArgAliases:       nil,
+	PersistentPreRun: nil,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		_, err := os.Stat(args[0])
 		if os.IsNotExist(err) {
@@ -67,7 +67,7 @@ var decryptCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("failed to read from file\n")
 		}
-		plaintext := func() []byte{
+		plaintext := func() []byte {
 			key := []byte(hash.Create(decryptPassword))
 			block, err := aes.NewCipher(key)
 			if err != nil {
@@ -86,9 +86,9 @@ var decryptCmd = &cobra.Command{
 			return plaintext
 		}()
 		if string(plaintext) != "" {
-				if _, err := decryptOutputDestination.Write(plaintext); err != nil {
-					log.Fatal(err)
-				}
+			if _, err := decryptOutputDestination.Write(plaintext); err != nil {
+				log.Fatal(err)
+			}
 		} else {
 			log.Fatalln("failed to decrypt file")
 		}
@@ -96,5 +96,5 @@ var decryptCmd = &cobra.Command{
 	PostRun: func(cmd *cobra.Command, args []string) {
 		log.Printf("successfully decrypted %s into %s\n", args[0], decryptOutputDestination.Name())
 	},
-	PersistentPostRun:          nil,
+	PersistentPostRun: nil,
 }

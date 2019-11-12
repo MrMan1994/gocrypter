@@ -12,9 +12,9 @@ import (
 	"os"
 )
 
-var(
-	encryptPassword string
-	encryptOutputFile string
+var (
+	encryptPassword          string
+	encryptOutputFile        string
 	encryptOutputDestination os.File
 )
 
@@ -28,16 +28,16 @@ func init() {
 }
 
 var encryptCmd = &cobra.Command{
-	Use:                        "encrypt",
-	Aliases:                    []string{"e"},
-	SuggestFor:                 nil,
-	Short:                      "encrypt a file",
-	Long:                       "",
-	Example:                    "",
-	ValidArgs:                  nil,
-	Args:                       cobra.ExactArgs(1),
-	ArgAliases:                 nil,
-	PersistentPreRun:           nil,
+	Use:              "encrypt",
+	Aliases:          []string{"e"},
+	SuggestFor:       nil,
+	Short:            "encrypt a file",
+	Long:             "",
+	Example:          "",
+	ValidArgs:        nil,
+	Args:             cobra.ExactArgs(1),
+	ArgAliases:       nil,
+	PersistentPreRun: nil,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		_, err := os.Stat(args[0])
 		if os.IsNotExist(err) {
@@ -54,11 +54,11 @@ var encryptCmd = &cobra.Command{
 				_, err = os.Create(encryptOutputFile)
 			} else if os.IsPermission(err) {
 				log.Fatal(err)
-			} else if err != nil{
+			} else if err != nil {
 				log.Panic(err)
 			}
 		} else {
-			file, err := os.Create(args[0]+".encrypted")
+			file, err := os.Create(args[0] + ".encrypted")
 			if err != nil {
 				log.Panic(err)
 			}
@@ -89,6 +89,6 @@ var encryptCmd = &cobra.Command{
 			log.Panic(err)
 		}
 	},
-	PostRun:                    nil,
-	PersistentPostRun:          nil,
+	PostRun:           nil,
+	PersistentPostRun: nil,
 }

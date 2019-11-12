@@ -1,6 +1,6 @@
 package cmd
 
-import(
+import (
 	"github.com/spf13/cobra"
 	"gocrypter/log"
 	"os"
@@ -11,17 +11,17 @@ func init() {
 }
 
 var completionCmd = &cobra.Command{
-	Use:                        "completion",
-	Aliases:                    nil,
-	SuggestFor:                 nil,
-	Short:                      "generate command line completion",
-	Long:                       "",
-	Example:                    "",
-	ValidArgs:                  []string{"bash", "zsh", "powershell"},
-	Args:                       cobra.ExactValidArgs(1),
-	ArgAliases:                 nil,
-	PersistentPreRun:           nil,
-	PreRun:                     nil,
+	Use:              "completion",
+	Aliases:          nil,
+	SuggestFor:       nil,
+	Short:            "generate command line completion",
+	Long:             "",
+	Example:          "",
+	ValidArgs:        []string{"bash", "zsh", "powershell"},
+	Args:             cobra.ExactValidArgs(1),
+	ArgAliases:       nil,
+	PersistentPreRun: nil,
+	PreRun:           nil,
 	Run: func(cmd *cobra.Command, args []string) {
 		if args[0] == "bash" {
 			if err := rootCmd.GenBashCompletion(os.Stdout); err != nil {
@@ -37,6 +37,6 @@ var completionCmd = &cobra.Command{
 			}
 		}
 	},
-	PostRun:                    nil,
-	PersistentPostRun:          nil,
+	PostRun:           nil,
+	PersistentPostRun: nil,
 }

@@ -10,11 +10,11 @@ import (
 	"os"
 )
 
-var(
-	bruteForceOutputFile string
+var (
+	bruteForceOutputFile        string
 	bruteForceOutputDestination *os.File
-	characters string
-	passlen int
+	characters                  string
+	passlen                     int
 )
 
 func init() {
@@ -24,17 +24,17 @@ func init() {
 	bruteForceCmd.Flags().IntVarP(&passlen, "password-length", "l", 1, "the maximum password length (default is 1)")
 }
 
-var bruteForceCmd = & cobra.Command{
-	Use:                        "bruteforce",
-	Aliases:                    []string{"b", "brute"},
-	SuggestFor:                 nil,
-	Short:                      "bruteforce a file",
-	Long:                       "",
-	Example:                    "",
-	ValidArgs:                  nil,
-	Args:                       cobra.ExactArgs(1),
-	ArgAliases:                 nil,
-	PersistentPreRun:           nil,
+var bruteForceCmd = &cobra.Command{
+	Use:              "bruteforce",
+	Aliases:          []string{"b", "brute"},
+	SuggestFor:       nil,
+	Short:            "bruteforce a file",
+	Long:             "",
+	Example:          "",
+	ValidArgs:        nil,
+	Args:             cobra.ExactArgs(1),
+	ArgAliases:       nil,
+	PersistentPreRun: nil,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		_, err := os.Stat(args[0])
 		if os.IsNotExist(err) {
@@ -68,7 +68,7 @@ var bruteForceCmd = & cobra.Command{
 		if data, err := ioutil.ReadFile(args[0]); err != nil {
 			log.Fatalf("Failed to read from file!\n")
 		} else {
-			for passGuess := range GenerateCombinations(characters, passlen) {
+			for passGuess := range generateCombinations(characters, passlen) {
 				log.Printf("\033[2K\rTrying: %s", passGuess)
 				key := []byte(hash.Create(passGuess))
 				if block, err := aes.NewCipher(key); err != nil {
@@ -83,7 +83,7 @@ var bruteForceCmd = & cobra.Command{
 							continue
 						} else {
 							if _, err := bruteForceOutputDestination.Write(plaintext); err != nil {
-								log.Printf("\nSuccessfully decrypted the file %s, but failed to write the output to %s!\nThe decrypted content is:\n%s",args[0], bruteForceOutputFile, string(plaintext))
+								log.Printf("\nSuccessfully decrypted the file %s, but failed to write the output to %s!\nThe decrypted content is:\n%s", args[0], bruteForceOutputDestination.Name(), string(plaintext))
 								log.Fatal(err)
 							} else {
 								log.Printf("\nSuccessfully decrypted the file %s and write it's output to %s\nThe decrypted content is:\n%s\n", args[0], bruteForceOutputDestination.Name(), string(plaintext))
@@ -96,21 +96,21 @@ var bruteForceCmd = & cobra.Command{
 			log.Fatalf("\033[2K\r\033[0;31mNo matching password found using the provided characters: '%s' with maximum password length: %d\033[0m\n", characters, passlen)
 		}
 	},
-	PostRun:                    nil,
-	PersistentPostRun:          nil,
+	PostRun:           nil,
+	PersistentPostRun: nil,
 }
 
-func GenerateCombinations(alphabet string, length int) <-chan string {
+func generateCombinations(alphabet string, length int) <-chan string {
 	c := make(chan string)
 	go func(c chan string) {
 		defer close(c)
 
-		AddLetter(c, "", alphabet, length)
+		addLetter(c, "", alphabet, length)
 	}(c)
 	return c
 }
 
-func AddLetter(c chan string, combo string, alphabet string, length int) {
+func addLetter(c chan string, combo string, alphabet string, length int) {
 	if length <= 0 {
 		return
 	}
@@ -119,6 +119,6 @@ func AddLetter(c chan string, combo string, alphabet string, length int) {
 	for _, ch := range alphabet {
 		newCombo = combo + string(ch)
 		c <- newCombo
-		AddLetter(c, newCombo, alphabet, length-1)
+		addLetter(c, newCombo, alphabet, length-1)
 	}
 }
