@@ -1,7 +1,7 @@
 BIN=$(CURDIR)/bin
 BUILD=$(CURDIR)/build
 GOLINT=$(BIN)/golint
-EXECUTABLE=$(BUILD)/main
+EXECUTABLE=$(BUILD)/gocrypter
 
 GO=go
 GOBUILD=$(GO) build -v -x
@@ -10,7 +10,7 @@ GOINSTALL=$(GO) install -v
 GOGET=$(GO) get -v
 GOFMT=gofmt
 GOCLEAN=$(GO) clean
-SRCFILES=main.go go.mod log hash cmd
+SRCFILES=gocrypter.go go.mod log hash cmd
 
 all: $(EXECUTABLE)
 
@@ -25,7 +25,7 @@ $(BUILD):
 	@cp -r $(SRCFILES) "$@"
 
 $(BUILD)/%: | $(BUILD) $(BIN)
-	@sh -c "cd $(BUILD) && $(GOBUILD) -o main main.go && cp main $(BIN) && cp main .."
+	@sh -c "cd $(BUILD) && $(GOBUILD) -o gocrypter gocrypter.go && cp gocrypter $(BIN) && cp gocrypter .."
 
 clean:
 	@$(GOCLEAN)
