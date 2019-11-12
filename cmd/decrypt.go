@@ -26,7 +26,7 @@ var decryptCmd = &cobra.Command{
 	Use:                        "decrypt",
 	Aliases:                    []string{"d"},
 	SuggestFor:                 nil,
-	Short:                      "",
+	Short:                      "decrypt a file",
 	Long:                       "",
 	Example:                    "",
 	ValidArgs:                  nil,
@@ -49,7 +49,7 @@ var decryptCmd = &cobra.Command{
 				decryptOutputDestination, err = os.Create(decryptOutputFile)
 			} else if os.IsPermission(err) {
 				log.Fatal(err)
-			} else if os.IsExist(err) && func() bool {
+			} else if os.IsExist(err) && !func() bool {
 				bytes, err := ioutil.ReadFile(file.Name())
 				if err != nil {
 					log.Panic(err)
@@ -63,9 +63,9 @@ var decryptCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		ciphertext, err := ioutil.ReadFile(args[0])
+		encryptedText, err := ioutil.ReadFile(args[0])
 		if err != nil {
-			log.Fatalf("Failed to read from file!\n")
+			log.Fatalf("failed to read from file\n")
 		}
 		plaintext := func() []byte{
 			key := []byte(hash.Create(decryptPassword))
@@ -78,7 +78,7 @@ var decryptCmd = &cobra.Command{
 				log.Panic(err)
 			}
 			nonceSize := gcm.NonceSize()
-			nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+			nonce, ciphertext := encryptedText[:nonceSize], encryptedText[nonceSize:]
 			plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 			if err != nil {
 				log.Panic(err)
@@ -87,14 +87,14 @@ var decryptCmd = &cobra.Command{
 		}()
 		if string(plaintext) != "" {
 				if _, err := decryptOutputDestination.Write(plaintext); err != nil {
-					log.Fatalf("Failed to write to file!\n")
+					log.Fatal(err)
 				}
 		} else {
-			log.Fatalf("Failed to decrypt file!\n")
+			log.Fatalln("failed to decrypt file")
 		}
 	},
 	PostRun: func(cmd *cobra.Command, args []string) {
-		log.Printf("Successfully decrypted %s into %s\n", args[0], decryptOutputDestination.Name())
+		log.Printf("successfully decrypted %s into %s\n", args[0], decryptOutputDestination.Name())
 	},
 	PersistentPostRun:          nil,
 }
