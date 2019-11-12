@@ -13,6 +13,7 @@ import (
 var(
 	bruteForceFile string
 	bruteForceOutputFile string
+	bruteForceOutputDestination *os.File
 	characters string
 	passlen int
 )
@@ -36,7 +37,33 @@ var bruteForceCmd = & cobra.Command{
 	ArgAliases:                 nil,
 	PersistentPreRun:           nil,
 	PreRun: func(cmd *cobra.Command, args []string) {
+		_, err := os.Stat(args[0])
+		if os.IsNotExist(err) {
+			log.Fatalf("%s: no such file or directory", args[0])
+		} else if os.IsPermission(err) {
+			log.Fatalf("%s: permission denied", args[0])
+		} else if err != nil {
+			log.Panic(err)
+		}
 
+		if bruteForceOutputFile != "" {
+			file, err := os.Stat(bruteForceOutputFile)
+			if os.IsNotExist(err) {
+				bruteForceOutputDestination, err = os.Create(bruteForceOutputFile)
+			} else if os.IsPermission(err) {
+				log.Fatal(err)
+			} else if os.IsExist(err) && !func() bool {
+				bytes, err := ioutil.ReadFile(file.Name())
+				if err != nil {
+					log.Panic(err)
+				}
+				return bytes == nil
+			}() {
+				log.Fatalf("%s exists, but is not empty", file.Name())
+			}
+		} else {
+			bruteForceOutputDestination = os.Stdout
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if data, err := ioutil.ReadFile(bruteForceFile); err != nil {
@@ -56,16 +83,11 @@ var bruteForceCmd = & cobra.Command{
 						if plaintext, err := gcm.Open(nil, nonce, ciphertext, nil); err != nil {
 							continue
 						} else {
-							if f, err := os.Create(bruteForceOutputFile); err != nil {
-								log.Fatalf("\nSuccessfully decrypted the file %s, but failed to create the output to %s!\nThe decrypted content is:\n%s",bruteForceFile, bruteForceOutputFile, string(plaintext))
+							if _, err := bruteForceOutputDestination.Write(plaintext); err != nil {
+								log.Fatalf("\nSuccessfully decrypted the file %s, but failed to write the output to %s!\nThe decrypted content is:\n%s",bruteForceFile, bruteForceOutputFile, string(plaintext))
 							} else {
-								defer f.Close()
-								if _, err := f.Write(plaintext); err != nil {
-									log.Fatalf("\nSuccessfully decrypted the file %s, but failed to write the output to %s!\nThe decrypted content is:\n%s",bruteForceFile, bruteForceOutputFile, string(plaintext))
-								} else {
-									log.Printf("\nSuccessfully decrypted the file %s and write it's output to %s\nThe decrypted content is:\n%s\n", bruteForceFile, bruteForceOutputFile, string(plaintext))
-									return
-								}
+								log.Printf("\nSuccessfully decrypted the file %s and write it's output to %s\nThe decrypted content is:\n%s\n", bruteForceFile, bruteForceOutputFile, string(plaintext))
+								return
 							}
 						}
 					}
