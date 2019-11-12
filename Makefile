@@ -3,6 +3,7 @@ BUILD=$(CURDIR)
 GOLINT=$(BIN)/golint
 PROG=$(CURDIR)/gocrypter
 
+SHELL:=/bin/bash
 
 GO=go
 GOBUILD=$(GO) build -v -x
@@ -12,6 +13,7 @@ GOGET=$(GO) get -v
 GOFMT=$(GO) fmt
 GOCLEAN=$(GO) clean
 
+.PHONY all
 all: $(BUILD)/gocrypter
 
 $(BIN):
@@ -30,29 +32,59 @@ $(BUILD)/%: | $(BUILD) $(BIN)
 
 $(BUILD)/gocrypter: SRCFILE=gocrypter.go
 
+.PHONY clean
 clean:
-	@$(GOCLEAN)
+	@env $(GOCLEAN)
 	@rm -rf $(BIN)
 
-
-
+.PHONY lint
 lint: | $(GOLINT)
-	@$(GOLINT) ./...
+	@env $(GOLINT) ./...
 
+.PHONY get
 get:
-	@$(GOGET)
+	@env $(GOGET)
 
+.PHONY fmt
 fmt:
-	@$(GOFMT) ./...
+	@env $(GOFMT) ./...
 
-install:
-	$(GOINSTALL) gocrypter.go
+.PHONY install
+install: completion
+	@env GOBIN=$(GOBIN) $(GOINSTALL) gocrypter.go
 
+.PHONY: completion
 completion:
-ifeq ("$$SHELL", "/bin/bash")
-	@echo "bash"
-else ifeq ("$$SHELL", "zsh")
-	@echo "zsh"
+ifeq "$(shell basename $$SHELL)" "bash"
+	$(info installing command line completion for bash...)
+	@if [ $(shell cat ~/.bashrc | grep "source <(gocrypter completion bash)" | wc -l) -ne 0 ]; then \
+	echo "bash completion has already been installed" ; \
+	else echo 'source <(gocrypter completion bash)' >> ~/.bashrc && echo "Please reload your shell!" ; \
+	fi;
+else ifeq "$(shell basename $$SHELL)" "zsh"
+	$(info installing command line completion for zsh...)
+	@if [ $(shell cat ~/.zshrc | grep "source <(gocrypter completion zsh)" | wc -l) -ne 0 ]; then \
+	echo "zsh completion has already been installed" ; \
+	else echo 'source <(gocrypter completion zsh)' >> ~/.zshrc && echo "Please reload your shell!" ; \
+	fi;
 else
-	@echo "no shell support for: $$SHELL"
+	@echo WARNING: cannot install command line completion for: \"$(shell echo $$SHELL)\": unsupported shell
+endif
+
+.PHONY: remove-completion
+remove-completion:
+ifeq "$(shell basename $$SHELL)" "bash"
+	$(info removing command line completion for bash...)
+	@if [ $(shell cat ~/.bashrc | grep "source <(gocrypter completion bash)" | wc -l) -ne 0 ]; then \
+	sed -i '/source <(gocrypter completion bash)/ d' ~/.bashrc && echo "removed bash completion" ; \
+	else echo "bash completion is not installed" ; \
+	fi;
+else ifeq "$(shell basename $$SHELL)" "zsh"
+	$(info removing command line completion for zsh...)
+	@if [ $(shell cat ~/.bashrc | grep "source <(gocrypter completion bash)" | wc -l) -ne 0 ]; then \
+	sed -i '/source <(gocrypter completion zsh)/ d' ~/.zshrc && echo "removed zsh completion" ; \
+	else echo "zsh completion is not installed" ; \
+	fi;
+else
+	@echo WARNING: cannot remove command line completion for: \"$(shell echo $$SHELL)\": unsupported shell
 endif
