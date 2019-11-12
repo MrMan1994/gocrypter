@@ -14,7 +14,7 @@ var completionCmd = &cobra.Command{
 	Use:                        "completion",
 	Aliases:                    nil,
 	SuggestFor:                 nil,
-	Short:                      "",
+	Short:                      "generate command line completion",
 	Long:                       "",
 	Example:                    "",
 	ValidArgs:                  []string{"bash", "zsh", "powershell"},
