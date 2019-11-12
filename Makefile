@@ -1,18 +1,18 @@
 BIN=$(CURDIR)/bin
-BUILD=$(CURDIR)/build
+BUILD=$(CURDIR)
 GOLINT=$(BIN)/golint
-EXECUTABLE=$(BUILD)/gocrypter
+PROG=$(CURDIR)/gocrypter
+
 
 GO=go
 GOBUILD=$(GO) build -v -x
 GOTEST=$(GO) test -v
 GOINSTALL=$(GO) install -v -x
 GOGET=$(GO) get -v
-GOFMT=gofmt
+GOFMT=$(GO) fmt
 GOCLEAN=$(GO) clean
-SRCFILES=gocrypter.go go.mod log hash cmd
 
-all: $(EXECUTABLE)
+all: $(BUILD)/gocrypter
 
 $(BIN):
 	@mkdir -p "$@"
@@ -20,19 +20,21 @@ $(BIN):
 $(BIN)/%: | $(BIN)
 	@env GO111MODULE=off GOPATH=$$tmp GOBIN=$(BIN) go get -v $(PACKAGE) || ret=$$?; rm -rf $$tmp ; exit $$ret
 
+$(BIN)/golint: PACKAGE=golang.org/x/lint/golint
+
 $(BUILD):
 	@mkdir -p "$@"
-	@cp -r $(SRCFILES) "$@"
 
 $(BUILD)/%: | $(BUILD) $(BIN)
-	@sh -c "cd $(BUILD) && $(GOBUILD) -o gocrypter gocrypter.go && cp gocrypter $(BIN) && cp gocrypter .."
+	@sh -c "cd $(BUILD) && $(GOBUILD) -o $(PROG) $(SRCFILE)"
+
+$(BUILD)/gocrypter: SRCFILE=gocrypter.go
 
 clean:
 	@$(GOCLEAN)
-	@rm -rf $(BUILD) $(BIN)
+	@rm -rf $(BIN)
 
-$(BIN)/golint: PACKAGE=golang.org/x/lint/golint
-$(BUILD)/main: GOOS=linux
+
 
 lint: | $(GOLINT)
 	@$(GOLINT) ./...
