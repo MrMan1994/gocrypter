@@ -6,7 +6,7 @@ EXECUTABLE=$(BUILD)/gocrypter
 GO=go
 GOBUILD=$(GO) build -v -x
 GOTEST=$(GO) test -v
-GOINSTALL=$(GO) install -v
+GOINSTALL=$(GO) install -v -x
 GOGET=$(GO) get -v
 GOFMT=gofmt
 GOCLEAN=$(GO) clean
@@ -42,3 +42,15 @@ get:
 
 fmt:
 	@$(GOFMT) ./...
+
+install:
+	$(GOINSTALL) gocrypter.go
+
+completion:
+ifeq ("$$SHELL", "/bin/bash")
+	@echo "bash"
+else ifeq ("$$SHELL", "zsh")
+	@echo "zsh"
+else
+	@echo "no shell support for: $$SHELL"
+endif
