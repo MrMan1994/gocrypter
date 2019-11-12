@@ -11,7 +11,6 @@ import (
 )
 
 var(
-	bruteForceFile string
 	bruteForceOutputFile string
 	bruteForceOutputDestination *os.File
 	characters string
@@ -20,9 +19,9 @@ var(
 
 func init() {
 	rootCmd.AddCommand(bruteForceCmd)
-	rootCmd.Flags().StringVarP(&bruteForceOutputFile, "output-file", "o", "", "the file to write the decrypted content to (default Stdout)")
-	rootCmd.Flags().StringVarP(&characters, "characters", "c", "", "the characters to include for brute forcing")
-	rootCmd.Flags().IntVarP(&passlen, "password-length", "l", 1, "the maximum password length (default is 1)")
+	bruteForceCmd.Flags().StringVarP(&bruteForceOutputFile, "output-file", "o", "", "the file to write the decrypted content to (default Stdout)")
+	bruteForceCmd.Flags().StringVarP(&characters, "characters", "c", "", "the characters to include for brute forcing")
+	bruteForceCmd.Flags().IntVarP(&passlen, "password-length", "l", 1, "the maximum password length (default is 1)")
 }
 
 var bruteForceCmd = & cobra.Command{
@@ -66,7 +65,7 @@ var bruteForceCmd = & cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		if data, err := ioutil.ReadFile(bruteForceFile); err != nil {
+		if data, err := ioutil.ReadFile(args[0]); err != nil {
 			log.Fatalf("Failed to read from file!\n")
 		} else {
 			for passGuess := range GenerateCombinations(characters, passlen) {
@@ -84,9 +83,10 @@ var bruteForceCmd = & cobra.Command{
 							continue
 						} else {
 							if _, err := bruteForceOutputDestination.Write(plaintext); err != nil {
-								log.Fatalf("\nSuccessfully decrypted the file %s, but failed to write the output to %s!\nThe decrypted content is:\n%s",bruteForceFile, bruteForceOutputFile, string(plaintext))
+								log.Printf("\nSuccessfully decrypted the file %s, but failed to write the output to %s!\nThe decrypted content is:\n%s",args[0], bruteForceOutputFile, string(plaintext))
+								log.Fatal(err)
 							} else {
-								log.Printf("\nSuccessfully decrypted the file %s and write it's output to %s\nThe decrypted content is:\n%s\n", bruteForceFile, bruteForceOutputFile, string(plaintext))
+								log.Printf("\nSuccessfully decrypted the file %s and write it's output to %s\nThe decrypted content is:\n%s\n", args[0], bruteForceOutputDestination.Name(), string(plaintext))
 								return
 							}
 						}
