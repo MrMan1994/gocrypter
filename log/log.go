@@ -15,7 +15,7 @@ func init() {
 
 // Panic calls the logger's Panic function with the provided args
 func Panic(args ...interface{}) {
-	logger.Panic(args)
+	logger.Panic(args...)
 }
 
 // Panicf calls the logger's Panicf function with the provided args
@@ -25,12 +25,12 @@ func Panicf(args ...interface{}) {
 
 // Panicln calls the logger's Panicln function with the provided args
 func Panicln(args ...interface{}) {
-	logger.Panicln(args)
+	logger.Panicln(args...)
 }
 
 // Fatal calls the logger's Fatal function with the provided args
 func Fatal(args ...interface{}) {
-	logger.Fatal(args)
+	logger.Fatal(args...)
 }
 
 // Fatalf calls the logger's Fatalf function with the provided args
@@ -40,12 +40,12 @@ func Fatalf(args ...interface{}) {
 
 // Fatalln calls the logger's Fatalln function with the provided args
 func Fatalln(args ...interface{}) {
-	logger.Fatalln(args)
+	logger.Fatalln(args...)
 }
 
 // Print calls the logger's Print function with the provided args
 func Print(args ...interface{}) {
-	logger.Print(args)
+	logger.Print(args...)
 }
 
 // Printf calls the logger's Printf function with the provided args
@@ -55,5 +55,5 @@ func Printf(args ...interface{}) {
 
 // Println calls the logger's Println function with the provided args
 func Println(args ...interface{}) {
-	logger.Println(args)
+	logger.Println(args...)
 }
