@@ -12,7 +12,6 @@ GOINSTALL=$(GO) install -v -x
 GOGET=$(GO) get -v
 GOFMT=$(GO) fmt
 GOCLEAN=$(GO) clean
-GOBIN=$$GOBIN
 
 all: $(BUILD)/gocrypter
 
@@ -37,7 +36,7 @@ clean:
 	@rm -rf $(BIN)
 
 lint: | $(GOLINT)
-	@env $(GOLINT) ./...
+	@env $(GOLINT) -set_exit_status ./...
 
 get:
 	@env $(GOGET)
